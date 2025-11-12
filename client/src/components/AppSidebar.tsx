@@ -59,13 +59,16 @@ export function AppSidebar() {
   return (
     <Sidebar data-testid="sidebar-main">
       <SidebarHeader className="p-6 border-b">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-            <DollarSign className="h-5 w-5 text-primary-foreground" />
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+            <DollarSign className="h-6 w-6 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight">Grant Manager</h1>
-            <p className="text-xs text-muted-foreground">Fineract Platform</p>
+          <div className="flex-1">
+            <div className="flex items-baseline gap-1">
+              <h1 className="text-lg font-semibold tracking-tight text-primary">Lattice</h1>
+              <span className="text-sm font-medium text-accent">.africa</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Strategic Expertise for Sustainable Growth in Africa</p>
           </div>
         </div>
       </SidebarHeader>
