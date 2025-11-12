@@ -19,64 +19,41 @@ import {
 import { StatusBadge, type ApplicationStatus } from "@/components/StatusBadge";
 import { Search, Filter, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import type { Application, Applicant, GrantProgram } from "@shared/schema";
+import { Link } from "wouter";
 
 export default function Applications() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  //todo: remove mock functionality
-  const applications = [
-    {
-      id: "APP-2024-001",
-      applicant: "Sarah Johnson",
-      program: "Small Business Development",
-      amount: 50000,
-      submitted: "2024-11-05",
-      status: "pending" as ApplicationStatus,
-    },
-    {
-      id: "APP-2024-002",
-      applicant: "Michael Chen",
-      program: "Education Innovation Fund",
-      amount: 25000,
-      submitted: "2024-11-08",
-      status: "under_review" as ApplicationStatus,
-    },
-    {
-      id: "APP-2024-003",
-      applicant: "Emily Rodriguez",
-      program: "Community Health Initiative",
-      amount: 75000,
-      submitted: "2024-11-01",
-      status: "approved" as ApplicationStatus,
-    },
-    {
-      id: "APP-2024-004",
-      applicant: "David Kim",
-      program: "Technology Innovation",
-      amount: 100000,
-      submitted: "2024-10-28",
-      status: "disbursed" as ApplicationStatus,
-    },
-    {
-      id: "APP-2024-005",
-      applicant: "Lisa Anderson",
-      program: "Arts & Culture Program",
-      amount: 35000,
-      submitted: "2024-10-25",
-      status: "rejected" as ApplicationStatus,
-    },
-    {
-      id: "APP-2024-006",
-      applicant: "James Wilson",
-      program: "Environmental Conservation",
-      amount: 60000,
-      submitted: "2024-10-20",
-      status: "completed" as ApplicationStatus,
-    },
-  ];
+  const { data: applications } = useQuery<Application[]>({
+    queryKey: ["/api/applications"],
+  });
 
-  const filteredApplications = applications.filter((app) => {
+  const { data: applicants } = useQuery<Applicant[]>({
+    queryKey: ["/api/applicants"],
+  });
+
+  const { data: programs } = useQuery<GrantProgram[]>({
+    queryKey: ["/api/programs"],
+  });
+
+  const applicationsWithDetails = applications?.map((app) => {
+    const applicant = applicants?.find((a) => a.id === app.applicantId);
+    const program = programs?.find((p) => p.id === app.programId);
+    
+    return {
+      id: app.id,
+      applicant: applicant?.name || "Unknown",
+      program: program?.name || "Unknown",
+      amount: parseFloat(app.amount),
+      submitted: new Date(app.submittedAt).toISOString().split("T")[0],
+      status: app.status as ApplicationStatus,
+    };
+  }) || [];
+
+  const filteredApplications = applicationsWithDetails.filter((app) => {
     const matchesSearch =
       app.applicant.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -176,14 +153,15 @@ export default function Applications() {
                     <StatusBadge status={app.status} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => console.log("View", app.id)}
-                      data-testid={`button-view-${app.id}`}
-                    >
-                      View
-                    </Button>
+                    <Link href={`/applications/${app.id}`}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-testid={`button-view-${app.id}`}
+                      >
+                        View
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}
